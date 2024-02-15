@@ -46,7 +46,7 @@ def add_lag_and_rolling_avg(df, pollutants, lag_days, rolling_window):
     for pollutant in pollutants:
         for lag in lag_days:
             df[f'{pollutant}_lag_{lag}'] = df[pollutant].shift(lag).fillna(method='ffill')
-        # Adding rolling averages for each pollutant and filling nulls with the column mean
+        # add rolling averages for each pollutant and filling nulls with the column mean
         df[f'{pollutant}_rolling_avg_{rolling_window}d'] = df[pollutant].rolling(window=rolling_window).mean().fillna(df[pollutant].mean())
     
     return df
