@@ -2,7 +2,7 @@ import pandas as pd
 import requests
 from datetime import datetime, timedelta
 
-# Helper function to generate a list of midnight timestamps for the past week
+#generate a list of midnight timestamps for the past week
 def generate_times(start_date, days=30, times_per_day=24):
     timestamps = []
     for i in range(days):
@@ -25,10 +25,10 @@ locations = [
 api_key = 'AIzaSyAa5E_3eK4bcuIbbEqV2MlTGLQryashZJQ'
 url = 'https://airquality.googleapis.com/v1/history:lookup?key={}'.format(api_key)
 
-# Prepare an empty list for collecting data
+#prep an empty list for collecting data
 data_for_df = []
 
-# Iterate through each location
+#iterate through each location
 for location in locations:
     #iterate through each datetime to fetch data for the current location
     for dt in datetime_list:
@@ -81,9 +81,8 @@ for location in locations:
         else:
             print(f"Error fetching data for {formatted_timestamp} at {location['name']}: {response.status_code} - {response.text}")
 
-#create a DataFrame from the collected data
+#create a datafarme from the collected data and save as csv
 df = pd.DataFrame(data_for_df)
 
-#display the DataFrame
 print(df)
 df.to_csv(r"C:\Users\spash\Documents\AQI DATA\AQI DATA.csv.xlsx")
