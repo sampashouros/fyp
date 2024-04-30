@@ -58,20 +58,20 @@ def add_lag_and_rolling_avg(df, pollutants, lag_days, rolling_window):
 import plotly.graph_objects as go
 
 def plot_predictions_sorted(actual, predicted, location):
-    # Combine actual and predicted into a DataFrame
+    #combine actual and predicted into a df
     combined_df = pd.DataFrame({'Actual': actual, 'Predicted': predicted})
     
-    # Sort the DataFrame by the actual values
+    # sort the df
     combined_df.sort_values(by='Actual', inplace=True)
 
-    # Reset index to get a proper line plot after sorting
+    #reset index to get a proper line plot after sort
     combined_df.reset_index(drop=True, inplace=True)
     
-    # Create the traces for the sorted values
+    #create the traces for the sorted values
     trace1 = go.Scatter(x=combined_df.index, y=combined_df['Actual'], mode='lines+markers', name='Actual')
     trace2 = go.Scatter(x=combined_df.index, y=combined_df['Predicted'], mode='lines+markers', name='Predicted')
     
-    # Define the layout of the plot
+    #layout of the plot
     layout = go.Layout(
         title=f"{location} AQI Prediction vs Actual - Sorted",
         xaxis_title="Sorted Index",
