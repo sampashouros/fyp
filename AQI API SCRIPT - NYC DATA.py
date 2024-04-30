@@ -2,8 +2,8 @@ import pandas as pd
 import requests
 from datetime import datetime, timedelta
 
-#generate a list of midnight timestamps for the past week
-def generate_times(start_date, days=30, times_per_day=24):
+#generate a list of timestamps for the past week
+def generate_times(start_date, days=29, times_per_day=24):
     timestamps = []
     for i in range(days):
         day = (start_date + timedelta(days=i))
@@ -11,7 +11,7 @@ def generate_times(start_date, days=30, times_per_day=24):
             timestamps.append(day.replace(hour=hour, minute=0, second=0, microsecond=0))
     return timestamps
 #initialise variables
-start_date = datetime.now() - timedelta(days=30)
+start_date = datetime.now() - timedelta(days=29)
 datetime_list = generate_times(start_date)
 
 locations = [
@@ -22,7 +22,7 @@ locations = [
     {"name": "Queens", "latitude": 40.725119, "longitude": -73.788628},
 ]
 
-api_key = 'AIzaSyAa5E_3eK4bcuIbbEqV2MlTGLQryashZJQ'
+api_key = 'AIzaSyBCCAHGjX6o2Oh2JxPssW00fDoDaDRzZkE'
 url = 'https://airquality.googleapis.com/v1/history:lookup?key={}'.format(api_key)
 
 #prep an empty list for collecting data
@@ -85,4 +85,4 @@ for location in locations:
 df = pd.DataFrame(data_for_df)
 
 print(df)
-df.to_csv(r"C:\Users\spash\Documents\AQI DATA\AQI DATA.csv.xlsx")
+df.to_csv(r"C:\Users\spash\Documents\AQI DATA\AQI DATA.csv")

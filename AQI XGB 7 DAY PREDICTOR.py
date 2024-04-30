@@ -66,8 +66,8 @@ for location in location_dfs:
     #split the dataset into the Training set and Test set
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
     
-    model = xgb.XGBRegressor(objective ='reg:squarederror', colsample_bytree = 0.3, learning_rate = 0.1,
-                             max_depth = 5, alpha = 10, n_estimators = 100)
+    model = xgb.XGBRegressor(objective ='reg:squarederror', colsample_bytree = 1, learning_rate = 0.01,
+                             max_depth = 10, n_estimators = 844, gamma = 3)
     model.fit(X_train, y_train)
 
     #prediction and evaluation
@@ -82,10 +82,10 @@ for location in location_dfs:
         'model': model, 'rmse': rmse
     }
 
-def forecast_next_21_intervals(model, latest_data, pollutants, lag_days, rolling_window):
+def forecast_next_9_intervals(model, latest_data, pollutants, lag_days, rolling_window):
     interval_predictions = []
     
-    for _ in range(21):
+    for _ in range(9):
         #prep the features for the next interval's prediction
         next_interval_features = add_lag_and_rolling_avg(latest_data, pollutants, lag_days, rolling_window).iloc[-1:]
         
@@ -100,25 +100,43 @@ def forecast_next_21_intervals(model, latest_data, pollutants, lag_days, rolling
         new_row_df = pd.DataFrame([new_row], index=[latest_data.index[-1] + 1 if len(latest_data.index) > 0 else 0])
         latest_data = pd.concat([latest_data, new_row_df])
     
-    #put interval predictions to a 7x3 matrix (7 days, 3 intervals per day)
-    interval_predictions_matrix = np.array(interval_predictions).reshape(7, 3)
+    #put interval predictions to a 3x3 matrix (3 days, 3 intervals per day)
+    interval_predictions_matrix = np.array(interval_predictions).reshape(3, 3)
     
     #calculate daily AQI averages from the interval predictions
     daily_aqi_averages = np.mean(interval_predictions_matrix, axis=1)
     
     return daily_aqi_averages
 
+location_coords = {
+    'Brooklyn': '40.678177,-73.94416',
+    'The Bronx': '40.840347,-73.876969',
+    'Manhattan': '40.787534,-73.961126',
+    'Staten Island': '40.599252,-74.11424',
+    'Queens': '40.725119,-73.788628'
+}
 
+forecast_data = []
+
+# The main loop for each location
 for location, info in location_dfs.items():
-    print(f"Forecasting AQI for {location} over the next 21 intervals (7 days):")
     latest_data = info['X_test'].copy()
     latest_data['AQI'] = info['y_test']
 
-    #execute the 21 intervals forecast (3 a day for 7 days)
-    daily_aqi_averages = forecast_next_21_intervals(info['model'], latest_data, pollutants, lag_days, rolling_window)
+    #9 intervals forecast (3 a day for 3 days)
+    daily_aqi_averages = forecast_next_9_intervals(info['model'], latest_data, pollutants, lag_days, rolling_window)
     
-    #outputs the daily AQI averages for the next 7 days
+    # Collecting forecast data for each day
     for day, avg_aqi in enumerate(daily_aqi_averages, 1):
-        print(f"Day {day}: Average AQI = {avg_aqi:.2f}")
+        forecast_data.append({
+            'Day': f"Day {day}",
+            'Location': location,
+            'Long-Lat': location_coords[location],
+            'AQI Forecast': f"{avg_aqi:.2f}"
+        })
 
-    print("\n")
+#put into a dataframe
+forecast_df = pd.DataFrame(forecast_data)
+
+print(forecast_df)
+forecast_df.to_csv(r"C:\Users\spash\Documents\AQI DATA\FORECAST DATA.csv")
